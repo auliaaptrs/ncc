@@ -5,31 +5,15 @@ const dbconnection = require('./connection');
 const PORT = 3000;
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    const htmlResponse = `
-        <html>
-        <head>
-            <title>Homepage</title>
-            <link rel="stylesheet" type="text/css" href="styles.css">
-        </head>
-        <body>
-        <center>
-            <header>
-                <h1>TOKO SEMBAKO SINAR JAYA</h1>
-                <p>Senin - Jumat: 08:00 - 23:59</p>
-                <p>Sabtu: 08:00 - 20:59</p>
-                <p>Minggu: 08:00 - 17:59</p>
-            </header>
-            <nav>
-                    <a href="/about">ABOUT</a>
-                    <a href="/db-mysql">DATA PRODUK</a>
-            </nav>
-        <center>
-        </body>
-    </html>
-    `;
-    res.send(htmlResponse);
-});
+app.get('/', (req, res) => {
+    const data = {
+      "Nama Toko": "TOKO SEMBAKO SINAR JAYA",
+      "Pemilik": "AULIA PUTRI SALSABILA",
+      "Nomor Telpon": "5025221281",
+      "Cabang": "ITS SURABAYA",
+    };
+    res.json(data);
+  });
 
 app.get("/about", (req, res) => {
     const htmlResponse = `
@@ -44,7 +28,7 @@ app.get("/about", (req, res) => {
                 <p>Toko Sembako Sinar Jaya menyediakan berbagai macam kebutuhan pokok dan keperluan rumah tangga sejak tahun 1945.</p>
                 <p>Toko ini didirikan oleh Ibu Aulia dan saat ini telah berkembang menjadi toko sembako terkemuka di wilayah sekitar.</p>
                 <p>Kami menjual berbagai jenis produk sembako seperti beras, gula, minyak goreng, tepung, serta barang-barang kebutuhan rumah tangga lainnya.</p>
-                <p>Saat ini, Toko Sembako Sinar Jaya memiliki 5 cabang yang tersebar di berbagai lokasi strategis di ibu kota.</p>
+                <p>Saat ini, Toko Sembako Sinar Jaya memiliki 5 cabang yang tersebar di berbagai lokasi strategis di kota Besar.</p>
                 <p>Dapatkan lebih banyak kemudahan melalui website resmi kami untuk mengecek ketersediaan produk yang berkualitas!</p>
             <center>
             </body>
@@ -125,6 +109,7 @@ app.post("/db-mysql", (req, res) => {
         res.status(201).json({ message: 'Data created successfully', data: { id, nama, harga, tersedia: tersedia ? "True" : "False", stok, deskripsi } });
     });
 });
+
 // Update data by id di MySQL
 app.put("/db-mysql/:id", (req, res) => {
     const id = parseInt(req.params.id);
