@@ -3,19 +3,42 @@ const app = express();
 const dbconnection = require('./connection');
 
 const PORT = 3000;
-// Middleware untuk mem-parsing body request
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Hello Camin-Camin NCC!");
+    const htmlResponse = `
+        <html>
+            <head>
+                <title>Homepage</title>
+            </head>
+            <body>
+                <center>
+                    <h1>HALO NCC!</h1>
+                    <a href="/about">LETSGO!</a>
+                </center>
+            </body>
+        </html>
+    `;
+    res.send(htmlResponse);
 });
 
-app.get("/page1", (req, res) => {
-    res.send("Hello from page 1");
-});
-
-app.get("/page2", (req, res) => {
-    res.send("Hello from page 2");
+app.get("/about", (req, res) => {
+    const htmlResponse = `
+        <html>
+            <head>
+                <title>ABOUT</title>
+            </head>
+            <body>
+                <h1>ABOUT</h1>
+                <h3>Perkenalkan..</h3>
+                <h3>Saya Aulia Putri Salsabila</h3>
+                <h3>Asal Jakarta</h3>
+                <h3>Angkatan 2022</h3>
+                
+            </body>
+        </html>
+    `;
+    res.send(htmlResponse);
 });
 
 
@@ -47,29 +70,47 @@ app.get("/db-mysql/:id", (req, res) => {
 
 // Create new data di MySQL
 app.post("/db-mysql", (req, res) => {
-    const { nama, asal, angkatan } = req.body;
-    const querySql = `INSERT INTO biodata (nama, asal, angkatan) VALUES ('${nama}', '${asal}', ${angkatan})`;
-    dbconnection.query(querySql, (err, result) => {
+    const { id, Nama, Asal, Angkatan } = req.body;
+    // Periksa apakah semua field yang dibutuhkan ada dalam body request
+    if (!id || !Nama || !Asal || !Angkatan) {
+        return res.status(400).json({ message: 'ID, Nama, asal, dan angkatan harus diisi' });
+    }
+
+    // Gunakan placeholder untuk mencegah serangan SQL injection
+    const querySql = 'INSERT INTO biodata (id, Nama, Asal, Angkatan) VALUES (?, ?, ?, ?)';
+    dbconnection.query(querySql, [id, Nama, Asal, Angkatan], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'There is an error', error: err });
         }
-        res.status(201).json({ message: 'Data created successfully', data: { id: result.insertId, nama, asal, angkatan } });
+        res.status(201).json({ message: 'Data created successfully', data: { id, Nama, Asal, Angkatan } });
     });
 });
+
+
+
 
 // Update data by id di MySQL
 app.put("/db-mysql/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const { nama, asal, angkatan } = req.body;
-    const querySql = `UPDATE biodata SET nama='${nama}', asal='${asal}', angkatan=${angkatan} WHERE id=${id}`;
-    dbconnection.query(querySql, (err, result) => {
+    const { Nama, Asal, Angkatan } = req.body;
+    // Validasi angka id
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID harus berupa angka' });
+    }
+    // Periksa apakah Nama, Asal, dan Angkatan ada dalam body request
+    if (!Nama || !Asal || !Angkatan) {
+        return res.status(400).json({ message: 'Nama, Asal, dan Angkatan harus diisi' });
+    }
+    // Gunakan placeholder untuk mencegah serangan SQL injection
+    const querySql = 'UPDATE biodata SET Nama=?, Asal=?, Angkatan=? WHERE id=?';
+    dbconnection.query(querySql, [Nama, Asal, Angkatan, id], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'There is an error', error: err });
         }
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Data not found' });
         }
-        res.status(200).json({ message: 'Data updated successfully', data: { id, nama, asal, angkatan } });
+        res.status(200).json({ message: 'Data updated successfully', data: { id, Nama, Asal, Angkatan } });
     });
 });
 
